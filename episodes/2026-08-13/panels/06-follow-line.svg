@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1080" role="img" aria-labelledby="t d"><title id="t">선을 밟다</title><desc id="d">젖은 종이와 납활자 사이 붉은 선이 구두 앞에서 철문 아래로 이어진다.</desc>
+<defs><filter id="paper"><feTurbulence baseFrequency=".08" numOctaves="4" seed="33" result="n"/><feBlend in="SourceGraphic" in2="n" mode="multiply"/></filter><pattern id="grid" width="62" height="62" patternUnits="userSpaceOnUse"><rect width="62" height="62" fill="none" stroke="#9a7442" opacity=".16"/></pattern></defs>
+<rect width="720" height="1080" fill="#24323a"/><rect width="720" height="1080" fill="url(#grid)"/>
+<g transform="rotate(-9 360 540)" fill="#d7cbb5" stroke="#151719" stroke-width="5"><path d="M65 90h248v310H65z"/><path d="M455 160h180v240H455z"/><path d="M70 790h190v200H70z"/></g>
+<g fill="#151719"><rect x="94" y="420" width="74" height="82"/><rect x="184" y="435" width="63" height="68"/><rect x="545" y="620" width="81" height="79"/><rect x="457" y="675" width="61" height="62"/></g><g fill="#9a7442" font-family="serif" font-size="38"><text x="112" y="475">ㅅ</text><text x="199" y="480">名</text><text x="566" y="674">乙</text></g>
+<path d="M0 0h720v198H0z" fill="#151719"/><path d="M40 38h640v128H40z" fill="#0b0d0e" stroke="#9a7442" stroke-width="8"/><path d="M310 165h100v39H310z" fill="#050606"/>
+<path d="M285 1035q-80-140-7-240l84-70 64 45 22 265z" fill="#151719" stroke="#e7ddc8" stroke-width="9"/><path d="M446 1035q82-135 14-231l-72-77-70 38-28 270z" fill="#151719" stroke="#e7ddc8" stroke-width="9"/>
+<path d="M346 818C250 640 510 590 389 430 340 365 358 284 360 184" fill="none" stroke="#a3262a" stroke-width="12"/><path d="M366 820C270 640 530 590 409 430 360 365 378 284 380 184" fill="none" stroke="#a3262a" stroke-width="12"/><path d="M327 829l34 27 28-39" fill="none" stroke="#a3262a" stroke-width="12"/>
+<text x="505" y="1000" fill="#e7ddc8" font-family="serif" font-size="21" letter-spacing="6">못 본 척 안 해.</text><rect width="720" height="1080" filter="url(#paper)" opacity=".06"/>
+</svg>
