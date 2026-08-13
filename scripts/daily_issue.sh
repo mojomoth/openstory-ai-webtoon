@@ -19,9 +19,9 @@ claude -p --model opus --effort high --max-turns 18 --max-budget-usd 5 \
   --allowedTools "Read,Write,Edit,Bash" \
   --output-format json >/tmp/osik-claude-$TODAY.json
 
-# 2. Codex: Claude의 패널 지시를 읽고, 같은 시각 언어의 실제 SVG 벡터 패널을 만든다.
+# 2. Codex: Claude의 패널 지시를 읽고, 실제 풀컬러 래스터 웹툰 패널을 생성한다.
 codex exec --sandbox danger-full-access \
-  "Read STORY_BIBLE.md, CLAUDE.md, episodes/$TODAY/SCENARIO.md, ART_PROMPTS.md and metadata.json. Create every metadata-referenced SVG file in episodes/$TODAY/panels/. Make 8–12 cohesive original 720x1080 vertical SVG illustrations, with Korean accessibility title/desc. Preserve the established ink/paper/letterpress visual grammar, use red only for correction danger, and do not use external images or imitate a living artist. Then run python3 scripts/publish_daily.py and validate every listed panel exists. Do not commit, deploy, or change prior episodes." 
+  "Read STORY_BIBLE.md, CLAUDE.md, episodes/$TODAY/SCENARIO.md, ART_PROMPTS.md and metadata.json. Generate every metadata-referenced panel as an ACTUAL full-image 1024x1536 PNG or WebP in episodes/$TODAY/panels/. Do not create SVG, placeholders, HTML drawings, or text-only illustrations. Each panel must be a finished, cohesive Korean vertical webtoon image with character continuity and room for dialogue overlay; preserve the ink/paper/letterpress visual grammar, use red only for correction danger, and do not imitate a living artist. Update metadata file extensions if necessary. Then run python3 scripts/publish_daily.py and validate every referenced raster panel exists. Do not commit, deploy, or change prior episodes."
 
 # 3. Deterministic public outputs, GitHub grass, production Vercel deployment.
 python3 scripts/publish_daily.py

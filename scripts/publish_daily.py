@@ -37,6 +37,9 @@ def load_episodes() -> list[dict]:
             if not asset.is_file():
                 raise FileNotFoundError(asset)
         data["_folder"] = folder
+        data["_episode_date"] = data["date"]
+        for panel in data["panels"]:
+            panel["_episode_date"] = data["date"]
         data["_url"] = f"episodes/{data['date']}/index.html"
         found.append(data)
     if not found:
@@ -57,16 +60,22 @@ def shell(title: str, body: str, *, prefix: str = "") -> str:
 <a class="skip-link" href="#main">본문으로 건너뛰기</a><div class="progress" aria-hidden="true"><span></span></div>
 <header class="site-head"><a class="brand" href="{prefix}index.html">오식(誤植) <small>— 을지로 교정소</small></a><nav class="site-nav" aria-label="주요 메뉴"><a href="{prefix}index.html">최신화</a><a href="{prefix}archive.html">기록 보관소</a></nav></header>
 {body}
-<footer class="site-foot"><p>글·그림 © 2026 오식 프로젝트. 모든 패널은 이 작품을 위해 직접 제작한 오리지널 SVG 아트입니다.</p><p>외부 이미지와 추적 스크립트를 사용하지 않습니다. <a href="{prefix}rss.xml">RSS</a></p></footer>
+<footer class="site-foot"><p>글·그림 © 2026 오식 프로젝트. 모든 패널은 이 작품을 위해 제작한 오리지널 래스터 웹툰 아트입니다.</p><p>외부 이미지와 추적 스크립트를 사용하지 않습니다. <a href="{prefix}rss.xml">RSS</a></p></footer>
 <script src="{prefix}assets/site.js" defer></script></body></html>
 """
 
 
 def panel_html(panel: dict, number: int) -> str:
-    dialogue = "".join(f"<p>{esc(line)}</p>" for line in panel["dialogue"])
-    return f"""<figure class="panel">
-<img src="{esc(panel['file'])}" alt="{esc(panel['alt'])}" width="720" height="1080" loading="{'eager' if number == 1 else 'lazy'}" decoding="async">
-<figcaption><span class="panel-no">PANEL {number:02d}</span>{dialogue}</figcaption></figure>"""
+    # The reader is deliberately image-first: dialogue lives as speech balloons
+    # over the artwork, never as a separate prose block between panels.
+    dialogue = "".join(
+        f'<span class="balloon balloon-{i + 1}">{esc(line)}</span>'
+        for i, line in enumerate(panel["dialogue"])
+    )
+    transcript = " ".join(panel["dialogue"])
+    return f"""<figure class="panel" aria-label="패널 {number}: {esc(panel['alt'])}">
+<img src="/{esc('episodes/' + panel['_episode_date'] + '/' + panel['file'])}" alt="{esc(panel['alt'])}" width="1024" height="1536" loading="{'eager' if number <= 2 else 'lazy'}" decoding="async">
+<div class="balloons" aria-hidden="true">{dialogue}</div><figcaption class="sr-only">{esc(transcript)}</figcaption></figure>"""
 
 
 def render_episode(ep: dict, previous: dict | None, following: dict | None) -> str:
@@ -85,7 +94,7 @@ def render_episode(ep: dict, previous: dict | None, following: dict | None) -> s
 <div class="episode-meta"><time datetime="{esc(ep['date'])}">{esc(ep['date'])}</time><span>{esc(ep.get('content_rating', '15세 이상'))}</span><span>약 {esc(ep.get('reading_minutes', 6))}분</span></div>
 <p class="episode-summary">{esc(ep['description'])}</p>{previous_markup}</header>
 <article class="comic" aria-label="{esc(ep['episode'])}화 세로 웹툰">{panels}</article>
-<section class="afterword" aria-labelledby="credit"><h2 id="credit">제작 기록</h2><p class="credit-stamp">글: {esc(ep['credits']['story'])}<br>그림: {esc(ep['credits']['art'])}<br>본 회차의 그림은 외부 이미지를 사용하지 않은 프로젝트 오리지널 작품입니다.</p>{next_markup}</section>
+<section class="afterword" aria-labelledby="credit"><h2 id="credit">제작 기록</h2><p class="credit-stamp">글: {esc(ep['credits']['story'])}<br>그림: {esc(ep['credits']['art'])}<br>이 회차는 대사와 연출이 패널 이미지 안에서 이어지는 세로 스크롤 웹툰입니다.</p>{next_markup}</section>
 </main>"""
     return shell(f"{ep['episode']:03d}화 {ep['title']}", body, prefix="../../")
 

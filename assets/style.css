@@ -69,15 +69,21 @@ h1 em { color: var(--red); font-style: normal; }
 .episode-meta { display: flex; flex-wrap: wrap; gap: .65rem 1.4rem; color: var(--paper-dim); font-size: .85rem; }
 .episode-summary { max-width: 620px; margin-top: 2rem; color: var(--paper-dim); }
 
-.comic { width: min(100%, var(--measure)); margin: 0 auto; }
-.panel { margin: 0; position: relative; background: var(--ink); }
-.panel + .panel { margin-top: clamp(3.5rem, 11vw, 7rem); }
-.panel:nth-child(4) { margin-bottom: clamp(7rem, 20vw, 13rem); }
-.panel img { width: 100%; height: auto; box-shadow: 0 2.6rem 6rem rgba(0,0,0,.48); }
-.panel figcaption { width: min(92%, 640px); margin: 1.2rem auto 0; color: var(--paper-dim); }
-.panel figcaption p { margin: .22rem 0; }
-.panel figcaption p:last-child { color: var(--paper); }
-.panel-no { display: block; margin-bottom: .4rem; color: var(--red); font: 700 .7rem sans-serif; letter-spacing: .2em; }
+.comic { width: min(100%, 720px); margin: 0 auto; }
+.panel { margin: 0; position: relative; background: var(--ink); overflow: hidden; }
+.panel + .panel { margin-top: 0; }
+.panel:nth-child(4) { margin-bottom: 0; }
+.panel img { width: 100%; height: auto; min-height: 240px; object-fit: cover; box-shadow: none; }
+.balloons { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.balloon { position: absolute; max-width: 68%; padding: .48em .7em; border: 2px solid #17120f; border-radius: 1.1em; background: rgba(255,252,242,.96); color: #16120f; font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-size: clamp(.78rem, 2.6vw, 1.08rem); font-weight: 750; line-height: 1.42; letter-spacing: -.035em; box-shadow: .16rem .19rem 0 rgba(0,0,0,.58); }
+.balloon::after { content: ""; position: absolute; width: .72rem; height: .72rem; background: inherit; border-right: 2px solid #17120f; border-bottom: 2px solid #17120f; transform: rotate(45deg); bottom: -.44rem; left: 1.1rem; }
+.balloon-1 { top: 6%; left: 5%; }
+.balloon-2 { top: 15%; right: 5%; }
+.balloon-3 { bottom: 7%; left: 8%; }
+.panel:nth-child(even) .balloon-1 { top: 7%; right: 5%; left: auto; }
+.panel:nth-child(even) .balloon-2 { top: 19%; left: 5%; right: auto; }
+.panel:nth-child(even) .balloon-3 { right: 7%; left: auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 .afterword { width: min(calc(100% - 2rem), var(--measure)); margin: 8rem auto 0; padding: 3rem 0 6rem; border-top: 1px solid rgba(231,221,200,.2); }
 .afterword h2 { font-size: 1.35rem; }
