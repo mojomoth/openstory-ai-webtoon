@@ -12,7 +12,7 @@
 6. `metadata.json`은 기존 스키마를 유지하고 날짜·번호·대사·한국어 alt·패널 경로·canon delta를 기록한다.
 7. 새 사실은 `STORY_BIBLE.md`의 정전/열린 실마리/변경 기록에 반영한다. 이미 지불한 기억 비용은 절대 복구하지 않는다.
 8. `python3 scripts/publish_daily.py`를 실행한다.
-9. 생성 결과에서 패널 수, SVG 존재, 내부 링크, RSS, sitemap, JSON 파싱을 검사한다.
+9. 생성 결과에서 패널 수, PNG 또는 WebP 래스터 패널 존재, 내부 링크, RSS, sitemap, JSON 파싱을 검사한다.
 
 ## 문체와 금지
 

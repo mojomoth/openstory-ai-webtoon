@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1080" role="img" aria-labelledby="t d"><title id="t">교정의 가격</title><desc id="d">빈 활자 한 칸과 지문 없는 손가락, 붉은 실이 손목 앞에서 멈춘다.</desc>
-<defs><pattern id="noise" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="#151719" opacity=".2"/></pattern></defs><rect width="720" height="1080" fill="#e7ddc8"/><rect width="720" height="1080" fill="url(#noise)"/>
-<path d="M0 0h720v280H0zM0 830h720v250H0z" fill="#151719"/>
-<g transform="translate(92 230)"><rect width="164" height="215" fill="#24323a" stroke="#151719" stroke-width="13"/><rect x="186" width="164" height="215" fill="#24323a" stroke="#151719" stroke-width="13"/><rect x="372" width="164" height="215" fill="none" stroke="#9a7442" stroke-width="10" stroke-dasharray="12 10"/><text x="52" y="145" fill="#e7ddc8" font-size="86" font-family="serif">김</text><text x="238" y="145" fill="#e7ddc8" font-size="86" font-family="serif">도</text></g>
-<path d="M-20 655c123-119 242-145 359-77l110 90-80 133-136-67-253 42z" fill="#cdbd9e" stroke="#151719" stroke-width="12"/><path d="M740 553c-140-81-254-70-343 32l-61 93 96 94 100-88 208 26z" fill="#d8ccb6" stroke="#151719" stroke-width="12"/>
-<g stroke="#151719" stroke-width="4" fill="none" opacity=".45"><path d="M412 625c48-36 89-39 125-8M404 646c47-30 89-31 125-1M395 666c45-22 85-21 120 6"/><path d="M187 656c40-31 79-36 117-16M179 679c41-26 80-28 117-7"/></g>
-<path d="M342 664c-58-52-83-116-74-191 13-95 144-105 174-19 24 68-14 119-51 172" fill="none" stroke="#a3262a" stroke-width="12"/><path d="M359 669c-59-55-83-117-73-188" fill="none" stroke="#a3262a" stroke-width="8"/><circle cx="360" cy="674" r="10" fill="#a3262a"/>
-<g fill="#e7ddc8" font-family="serif"><text x="65" y="930" font-size="26" letter-spacing="9">一 획</text><text x="450" y="930" font-size="26" letter-spacing="9">一 기억</text></g><path d="M65 966h590" stroke="#9a7442" stroke-width="3"/>
-</svg>

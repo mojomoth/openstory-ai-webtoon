@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 오식 일일 발행기 — Claude Opus는 정전/각본, Codex는 SVG 패널/검증을 맡는다.
+# 오식 일일 발행기 — Claude Opus는 정전/각본, Codex는 래스터 패널/검증을 맡는다.
 # 실행 위치는 저장소 루트여야 한다. 비밀은 /Users/jy/.secrets에만 둔다.
 set -euo pipefail
 
