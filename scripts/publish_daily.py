@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
 EPISODES = ROOT / "episodes"
-SITE_URL = "https://misprint-euljiro.example"
+SITE_URL = "https://openstory-ai-webtoon.vercel.app"
 
 
 def esc(value: object) -> str:
