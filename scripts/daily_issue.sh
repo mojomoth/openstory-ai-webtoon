@@ -72,7 +72,9 @@ git push "https://x-access-token:${GITHUB_TOKEN}@github.com/mojomoth/openstory-a
 
 STEP="vercel-deploy"
 echo '[STEP] deploying Vercel production'
-npx vercel --prod --yes --token "$VERCEL_TOKEN"
+# `--yes` after vercel answers deployment prompts; `npx --yes` separately
+# suppresses its first-run package-install prompt in non-interactive cron jobs.
+npx --yes vercel --prod --yes --token "$VERCEL_TOKEN"
 
 STEP="complete"
 printf '[SUCCESS] published: https://openstory-ai-webtoon.vercel.app/episodes/%s\n' "$TODAY"
