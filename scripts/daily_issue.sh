@@ -33,18 +33,24 @@ if [[ ! -f scripts/publish_daily.py || ! -f STORY_BIBLE.md || ! -f CLAUDE.md ]];
 fi
 
 if [[ -d "episodes/$TODAY" ]]; then
-  # A prior run may have completed the writing step and failed during art/deploy.
-  # Preserve it and resume only from image generation.
-  if [[ ! -f "episodes/$TODAY/SCENARIO.md" || ! -f "episodes/$TODAY/ART_PROMPTS.md" || ! -f "episodes/$TODAY/metadata.json" ]]; then
-    echo "[FAIL] episodes/$TODAY exists but is incomplete; refusing to overwrite it."
-    exit 11
+  # A prior job may have been interrupted after Claude created only part of a
+  # source episode. Preserve every existing file and ask Claude to finish only
+  # the missing source artifacts before moving on to Codex.
+  if [[ -f "episodes/$TODAY/SCENARIO.md" && -f "episodes/$TODAY/ART_PROMPTS.md" && -f "episodes/$TODAY/metadata.json" ]]; then
+    echo "[RESUME] complete episode source detected; skipping Claude writing step."
+  else
+    STEP="claude-resume-source"
+    echo '[STEP] Claude Opus: completing interrupted episode source'
+    claude -p --model opus --effort high --max-turns 30 --max-budget-usd 5 \
+      "episodes/$TODAY/ is an interrupted, partially written next episode of the continuous webtoon 오식(誤植). Read STORY_BIBLE.md, CLAUDE.md, every existing file inside episodes/$TODAY/, and the most recent complete earlier episode. Preserve existing source files unless a correction is essential for metadata consistency. Complete the missing required source artifacts: SCENARIO.md, ART_PROMPTS.md, metadata.json, and panels/README.md. metadata.json must contain 8~12 unique Korean panels with file/alt/dialogue and must match the scenario. Update STORY_BIBLE.md only with canon actually established by this episode. Do not create image panels, commit, deploy, or modify prior episodes. Finish the files within this single run and then stop." \
+      --allowedTools "Read,Write,Edit,Bash" \
+      --output-format json >"$LOG_DIR/claude-$TODAY.json"
   fi
-  echo "[RESUME] existing episode source detected; skipping Claude writing step."
 else
   STEP="claude-writing"
   echo '[STEP] Claude Opus: writing scenario and canon update'
-  claude -p --model opus --effort high --max-turns 18 --max-budget-usd 5 \
-    "오늘은 $TODAY 입니다. 오식(誤植) 연속 웹툰의 다음 회차를 실제 파일로 발행하세요. 먼저 STORY_BIBLE.md 전체, CLAUDE.md, 그리고 episodes/ 아래 가장 최근 회차의 SCENARIO.md·ART_PROMPTS.md·metadata.json을 읽으세요. 새 episodes/$TODAY/{SCENARIO.md,ART_PROMPTS.md,metadata.json,panels/}을 만들고 8~12 패널의 연결된 한국어 회차를 작성하세요. 직전 화의 마지막 이미지에서 즉시 이어지고, 열린 실마리 하나를 진전시키며 새 단서 하나를 심고, 기억 비용·인물 상태·날짜 연속성을 지키세요. metadata의 패널마다 고유 file/alt/dialogue를 넣으세요. STORY_BIBLE.md의 현재 타임라인, 열린 실마리, 변경 기록을 업데이트하세요. 절대 기존 화를 수정하거나 이미지 파일을 만들지 마세요." \
+  claude -p --model opus --effort high --max-turns 30 --max-budget-usd 5 \
+    "오늘은 $TODAY 입니다. 오식(誤植) 연속 웹툰의 다음 회차를 실제 파일로 발행하세요. 먼저 STORY_BIBLE.md 전체, CLAUDE.md, 그리고 episodes/ 아래 가장 최근 회차의 SCENARIO.md·ART_PROMPTS.md·metadata.json을 읽으세요. 새 episodes/$TODAY/{SCENARIO.md,ART_PROMPTS.md,metadata.json,panels/}을 만들고 8~12 패널의 연결된 한국어 회차를 작성하세요. 직전 화의 마지막 이미지에서 즉시 이어지고, 열린 실마리 하나를 진전시키며 새 단서 하나를 심고, 기억 비용·인물 상태·날짜 연속성을 지키세요. metadata의 패널마다 고유 file/alt/dialogue를 넣으세요. STORY_BIBLE.md의 현재 타임라인, 열린 실마리, 변경 기록을 업데이트하세요. 절대 기존 화를 수정하거나 이미지 파일을 만들지 마세요. 필요한 네 파일을 모두 만든 즉시 종료하세요; 불필요한 반복 검토는 하지 마세요." \
     --allowedTools "Read,Write,Edit,Bash" \
     --output-format json >"$LOG_DIR/claude-$TODAY.json"
 fi
@@ -61,7 +67,9 @@ python3 -m py_compile scripts/publish_daily.py
 
 STEP="git-commit"
 echo '[STEP] committing generated episode'
-git add -A
+# Stage only the current episode and deterministic public outputs. Never sweep
+# unrelated interrupted future episodes into the current publication commit.
+git add -- STORY_BIBLE.md "episodes/$TODAY" index.html archive.html rss.xml sitemap.xml
 git diff --cached --quiet && { echo '[FAIL] no publishable changes after generation.'; exit 12; }
 git commit -m "feat: publish episode for $TODAY"
 
