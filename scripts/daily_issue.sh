@@ -69,7 +69,7 @@ STEP="git-commit"
 echo '[STEP] committing generated episode'
 # Stage only the current episode and deterministic public outputs. Never sweep
 # unrelated interrupted future episodes into the current publication commit.
-git add -- STORY_BIBLE.md "episodes/$TODAY" index.html archive.html rss.xml sitemap.xml
+git add -- STORY_BIBLE.md "episodes/$TODAY" episodes/*/index.html index.html archive.html rss.xml sitemap.xml
 git diff --cached --quiet && { echo '[FAIL] no publishable changes after generation.'; exit 12; }
 git commit -m "feat: publish episode for $TODAY"
 
