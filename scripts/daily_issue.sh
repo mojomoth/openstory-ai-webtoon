@@ -58,11 +58,11 @@ fi
 STEP="codex-raster-art"
 echo '[STEP] Codex: generating full-image raster panels'
 codex exec --sandbox danger-full-access \
-  "Read STORY_BIBLE.md, CLAUDE.md, episodes/$TODAY/SCENARIO.md, episodes/$TODAY/ART_PROMPTS.md and episodes/$TODAY/metadata.json. Generate every metadata-referenced panel as an ACTUAL full-image 1024x1536 PNG or WebP in episodes/$TODAY/panels/. Do not create SVG, placeholders, HTML drawings, or text-only illustrations. Each panel must be a finished, cohesive Korean vertical webtoon image with character continuity and room for dialogue overlay; preserve the ink/paper/letterpress visual grammar, use red only for correction danger, and do not imitate a living artist. Update metadata file extensions if necessary. Then run python3 scripts/publish_daily.py and validate every referenced raster panel exists. Do not commit, deploy, or change prior episodes."
+  "Read STORY_BIBLE.md, CLAUDE.md, episodes/$TODAY/SCENARIO.md, episodes/$TODAY/ART_PROMPTS.md and episodes/$TODAY/metadata.json. Generate every metadata-referenced panel as an ACTUAL full-image 1024x1536 PNG or WebP in episodes/$TODAY/panels/. Do not create SVG, placeholders, HTML drawings, or text-only illustrations. Each panel must be a finished, cohesive Korean vertical webtoon image with character continuity and room for dialogue overlay; preserve the ink/paper/letterpress visual grammar, use red only for correction danger, and do not imitate a living artist. Update metadata file extensions if necessary. Then run python3 scripts/publish_daily.py --through $TODAY and validate every referenced raster panel exists. Do not commit, deploy, or change prior episodes."
 
 STEP="validate-publish"
 echo '[STEP] publishing static outputs and validating Python'
-python3 scripts/publish_daily.py
+python3 scripts/publish_daily.py --through "$TODAY"
 python3 -m py_compile scripts/publish_daily.py
 
 STEP="git-commit"

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import html
 import json
 from pathlib import Path
@@ -17,9 +18,11 @@ def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
-def load_episodes() -> list[dict]:
+def load_episodes(through: str | None = None) -> list[dict]:
     found: list[dict] = []
     for meta_path in sorted(EPISODES.glob("*/metadata.json")):
+        if through is not None and meta_path.parent.name > through:
+            continue
         data = json.loads(meta_path.read_text(encoding="utf-8"))
         required = {"episode", "title", "date", "description", "panels"}
         missing = required - data.keys()
@@ -134,7 +137,14 @@ def write(path: Path, content: str) -> None:
 
 
 def main() -> None:
-    episodes = load_episodes()
+    parser = argparse.ArgumentParser(description="Render deterministic public webtoon pages.")
+    parser.add_argument(
+        "--through",
+        metavar="YYYY-MM-DD",
+        help="Render only episodes dated on or before this date; protects recovery publishes from later incomplete episodes.",
+    )
+    args = parser.parse_args()
+    episodes = load_episodes(args.through)
     for i, ep in enumerate(episodes):
         previous = episodes[i - 1] if i else None
         following = episodes[i + 1] if i + 1 < len(episodes) else None
