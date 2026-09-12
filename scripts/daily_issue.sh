@@ -84,6 +84,16 @@ echo '[STEP] deploying Vercel production'
 # suppresses its first-run package-install prompt in non-interactive cron jobs.
 npx --yes vercel --prod --yes --name openstory-ai-webtoon --token "$VERCEL_TOKEN"
 
+STEP="verify-production"
+echo '[STEP] verifying production HTTP responses'
+for url in \
+  "https://openstory-ai-webtoon.vercel.app/" \
+  "https://openstory-ai-webtoon.vercel.app/episodes/$TODAY"; do
+  status="$(curl --fail --silent --show-error --location --output /dev/null --write-out '%{http_code}' "$url")"
+  [[ "$status" == "200" ]] || { echo "[FAIL] production verification status=$status url=$url"; exit 13; }
+  echo "[HTTP] $status $url"
+done
+
 STEP="complete"
 printf '[SUCCESS] published: https://openstory-ai-webtoon.vercel.app/episodes/%s\n' "$TODAY"
 printf '[SUCCESS] log: %s\n' "$LOG_FILE"
