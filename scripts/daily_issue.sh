@@ -32,6 +32,29 @@ if [[ ! -f scripts/publish_daily.py || ! -f STORY_BIBLE.md || ! -f CLAUDE.md ]];
   exit 10
 fi
 
+validate_episode_source() {
+  python3 - "$TODAY" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+date = sys.argv[1]
+root = Path('episodes') / date
+required = ['SCENARIO.md', 'ART_PROMPTS.md', 'metadata.json', 'panels/README.md']
+missing = [name for name in required if not (root / name).is_file()]
+if missing:
+    raise SystemExit(f'missing source artifacts: {missing}')
+data = json.loads((root / 'metadata.json').read_text(encoding='utf-8'))
+panels = data.get('panels', [])
+if not 8 <= len(panels) <= 14:
+    raise SystemExit(f'invalid panel count: {len(panels)}')
+for index, panel in enumerate(panels, 1):
+    if not all(panel.get(key) for key in ('file', 'alt', 'dialogue')):
+        raise SystemExit(f'incomplete metadata panel {index}')
+print(f'[SOURCE] validated {date}: {len(panels)} panels')
+PY
+}
+
 if [[ -d "episodes/$TODAY" ]]; then
   # A prior job may have been interrupted after Claude created only part of a
   # source episode. Preserve every existing file and ask Claude to finish only
@@ -41,18 +64,30 @@ if [[ -d "episodes/$TODAY" ]]; then
   else
     STEP="claude-resume-source"
     echo '[STEP] Claude Opus: completing interrupted episode source'
-    claude -p --model opus --effort high --max-turns 30 --max-budget-usd 5 \
+    CLAUDE_STATUS=0
+    claude -p --model opus --effort high --max-turns 30 --max-budget-usd 6 \
       "episodes/$TODAY/ is an interrupted, partially written next episode of the continuous webtoon 오식(誤植). Read STORY_BIBLE.md, CLAUDE.md, every existing file inside episodes/$TODAY/, and the most recent complete earlier episode. Preserve existing source files unless a correction is essential for metadata consistency. Complete the missing required source artifacts: SCENARIO.md, ART_PROMPTS.md, metadata.json, and panels/README.md. metadata.json must contain 8~12 unique Korean panels with file/alt/dialogue and must match the scenario. Update STORY_BIBLE.md only with canon actually established by this episode. Do not create image panels, commit, deploy, or modify prior episodes. Finish the files within this single run and then stop." \
       --allowedTools "Read,Write,Edit,Bash" \
-      --output-format json >"$LOG_DIR/claude-$TODAY.json"
+      --output-format json >"$LOG_DIR/claude-$TODAY.json" || CLAUDE_STATUS=$?
+    if (( CLAUDE_STATUS != 0 )); then
+      echo "[WARN] Claude exited $CLAUDE_STATUS; validating generated source before deciding whether recovery can continue."
+      validate_episode_source || exit "$CLAUDE_STATUS"
+      echo '[WARN] Claude budget/turn limit reached after valid source creation; continuing with deterministic art validation.'
+    fi
   fi
 else
   STEP="claude-writing"
   echo '[STEP] Claude Opus: writing scenario and canon update'
-  claude -p --model opus --effort high --max-turns 30 --max-budget-usd 5 \
+  CLAUDE_STATUS=0
+  claude -p --model opus --effort high --max-turns 30 --max-budget-usd 6 \
     "오늘은 $TODAY 입니다. 오식(誤植) 연속 웹툰의 다음 회차를 실제 파일로 발행하세요. 먼저 STORY_BIBLE.md 전체, CLAUDE.md, 그리고 episodes/ 아래 가장 최근 회차의 SCENARIO.md·ART_PROMPTS.md·metadata.json을 읽으세요. 새 episodes/$TODAY/{SCENARIO.md,ART_PROMPTS.md,metadata.json,panels/}을 만들고 8~12 패널의 연결된 한국어 회차를 작성하세요. 직전 화의 마지막 이미지에서 즉시 이어지고, 열린 실마리 하나를 진전시키며 새 단서 하나를 심고, 기억 비용·인물 상태·날짜 연속성을 지키세요. metadata의 패널마다 고유 file/alt/dialogue를 넣으세요. STORY_BIBLE.md의 현재 타임라인, 열린 실마리, 변경 기록을 업데이트하세요. 절대 기존 화를 수정하거나 이미지 파일을 만들지 마세요. 필요한 네 파일을 모두 만든 즉시 종료하세요; 불필요한 반복 검토는 하지 마세요." \
     --allowedTools "Read,Write,Edit,Bash" \
-    --output-format json >"$LOG_DIR/claude-$TODAY.json"
+    --output-format json >"$LOG_DIR/claude-$TODAY.json" || CLAUDE_STATUS=$?
+  if (( CLAUDE_STATUS != 0 )); then
+    echo "[WARN] Claude exited $CLAUDE_STATUS; validating generated source before deciding whether recovery can continue."
+    validate_episode_source || exit "$CLAUDE_STATUS"
+    echo '[WARN] Claude budget/turn limit reached after valid source creation; continuing with deterministic art validation.'
+  fi
 fi
 
 STEP="codex-raster-art"
