@@ -1,0 +1,110 @@
+{
+  "episode": 25,
+  "date": "2026-09-14",
+  "panels": [
+    {
+      "file": "panels/01-one-by-one.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2215490,
+      "correction_red_pixels": 0,
+      "sha256": "a336d2e22e82e0238e2ffe72f8fcb3156860d2208bbcd975f73a79fe6705de11"
+    },
+    {
+      "file": "panels/02-reversed-letters.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2045930,
+      "correction_red_pixels": 0,
+      "sha256": "9718e4ef81f2b1146d4bbab6c96eb7493317a3758de7598c13ee7725f34baa2f"
+    },
+    {
+      "file": "panels/03-the-smooth-place.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2039214,
+      "correction_red_pixels": 0,
+      "sha256": "113870567810b82d50ca91cb347f00ff939196cbaee6d63bc6bfd7164a44a9c4"
+    },
+    {
+      "file": "panels/04-with-a-finger.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 1864105,
+      "correction_red_pixels": 0,
+      "sha256": "902fdf720b3278bc0b5ab30ae9a2ee5b1e5e59f2b844c8d5fa67802103b2dbe3"
+    },
+    {
+      "file": "panels/05-dont-take-it-out.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 1845384,
+      "correction_red_pixels": 0,
+      "sha256": "e379f684e5416e3b525ad6a5aeb113b4b714dad973eaab487f0fbbe8d6bed542"
+    },
+    {
+      "file": "panels/06-eighty-six-again.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2175892,
+      "correction_red_pixels": 0,
+      "sha256": "993fb7b1b7cec7b03a6ed7dc3ea0d176f94748acd2a39cbc8a017fd14e7ce899"
+    },
+    {
+      "file": "panels/07-it-falls.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2011974,
+      "correction_red_pixels": 0,
+      "sha256": "defb895893485ba86e74568583a2e73bb501934adc813e280f513309df3110a7"
+    },
+    {
+      "file": "panels/08-dont-come-again.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2184291,
+      "correction_red_pixels": 0,
+      "sha256": "ef38b9c84c14c76fbd7848fbcde37a655962136f477842e027df774605022df1"
+    },
+    {
+      "file": "panels/09-the-pulling-thread.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2104142,
+      "correction_red_pixels": 0,
+      "sha256": "aa1107a785eb3e18820a693608ed9109f701a3a6ce63e5ed2fe3c9b6d57c7db6"
+    },
+    {
+      "file": "panels/10-knees-going-back.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2130058,
+      "correction_red_pixels": 0,
+      "sha256": "2bd5347ad8237e0b0ecf3f1c78a8b04db67e8ddf8628f2550ec68fa7f988a400"
+    },
+    {
+      "file": "panels/11-where-i-knelt.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2199115,
+      "correction_red_pixels": 0,
+      "sha256": "07501458ff6d6e0f9bb58139b1d0a5570aa3e04d1f5fa2325bb123021759ccd7"
+    }
+  ],
+  "color_check": "HSV 8-bit hue <8 or >247, saturation >90, value >45; excludes warm paper/brown contour antialiasing",
+  "referenced_rasters_validated_through_date": 283,
+  "local_links_checked": 60,
+  "rss_and_sitemap_parse": true,
+  "prior_episode_files_verified_unchanged": 385
+}
