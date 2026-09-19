@@ -1,0 +1,117 @@
+{
+  "episode": "2026-09-15",
+  "panels": [
+    {
+      "file": "panels/01-long-and-once.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2460069,
+      "sha256": "9756373727a929a1a10ecf4a08c9a141d94f0cd18d5c292bb908b4e689e86e17",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/02-the-width-of-a-hand-edge.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2838341,
+      "sha256": "d350209292e9a1132801b940d2aa1994c56504fecd25cef0105b53dc3c4f4cec",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/03-like-pulling-type.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3130532,
+      "sha256": "8be0a54ab306e7b797d79d3b4c7d2725c473e5ebcaf75f557380ea4f832917b3",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/04-one-finger-left.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2982939,
+      "sha256": "4ff22231d3412c0abb19913f6dcfbe291b6b441bd84c9c59671cf6f5a3d7a2b8",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/05-only-as-far-as-it-went.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3337801,
+      "sha256": "6eaa5b4ae2a3921e428bbd670748e171caa63cd6a44f24952c2d1ff1865d8602",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/06-beside-the-chair.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3312111,
+      "sha256": "fd966b5ab4839a8583644e1534821b3eb7858256847817f5cdc9d17b528acc58",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/07-the-door-is-open.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3304442,
+      "sha256": "168280405349078ee806c8ee853b422c13a1adb59b648ad886ccaa3abe693b6c",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/08-someone-who-names-the-smell.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2860603,
+      "sha256": "1cc69e27647e5abe422ae416d41b4ce689179d96ecd5c51ab703ea20aef239d1",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/09-twenty-six.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3543593,
+      "sha256": "1890947cc66ee93e6e06a9c5190db2b8bd3fec99af81ce3d6d151e566fccc3e8",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/10-thirteen-and-the-receipt-column.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3557573,
+      "sha256": "982c22f2f2f47eeafd8dbb7e4b8c55d777bd22d8639fe89eff3301a7c46eb3f4",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/11-todays-date.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3425212,
+      "sha256": "da59471878418441719972ac9f148a686899ebc53f6d6682252a1fd9322d1b28",
+      "png_crc_and_pixel_stream": "pass"
+    },
+    {
+      "file": "panels/12-two-letters-reversed.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3394710,
+      "sha256": "020f37099f126d750d21feb46ebdd8e345809306106688204fb61dd24cb3d6a9",
+      "png_crc_and_pixel_stream": "pass"
+    }
+  ],
+  "all_referenced_rasters_through_date": 295,
+  "internal_links_checked": 62,
+  "rss_and_sitemap_xml": "pass",
+  "prior_episode_files_unchanged": 402
+}
