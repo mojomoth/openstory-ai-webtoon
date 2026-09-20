@@ -1,0 +1,111 @@
+{
+  "episode": "2026-09-16",
+  "publisher": "python3 scripts/publish_daily.py --through 2026-09-16",
+  "referenced_rasters_decoded_through_date": 306,
+  "current_panels": [
+    {
+      "file": "panels/01-the-wiped-fingertip.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3362688,
+      "sha256": "26220b76843549853ff410ce2d407dff87ebf78a17d864613d2f864e21f0791b",
+      "strong_red_pixels": 9759
+    },
+    {
+      "file": "panels/02-toward-the-shelf.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3087631,
+      "sha256": "4d773eed5a7abaf0ba4682d07b2e711a446cff140a2dc23881e263b9d5d094ec",
+      "strong_red_pixels": 616
+    },
+    {
+      "file": "panels/03-the-hand-that-turns-instead.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3026989,
+      "sha256": "35253ab0118975cffc31ebbcf4e9bc0fff77d91699a598d2f93030dfbfbd0629",
+      "strong_red_pixels": 25
+    },
+    {
+      "file": "panels/04-a-square-cut-out.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3379365,
+      "sha256": "de1afb8cfda98a72c5856c1a91dc3aac0fb88378f0bef0591a3b2cd8967f1bbf",
+      "strong_red_pixels": 37
+    },
+    {
+      "file": "panels/05-my-own-handwriting.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2953303,
+      "sha256": "886b490da9ee74d5060174c51002fc075f326ad57382e4341f55040bd5a5ef66",
+      "strong_red_pixels": 69
+    },
+    {
+      "file": "panels/06-the-first-page-like-a-strangers.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2699934,
+      "sha256": "a4f70c0e9f1c7e6a763bde21639f783b03131527105eb2e1d884bce986c0b461",
+      "strong_red_pixels": 43
+    },
+    {
+      "file": "panels/07-the-one-who-filled-it.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2548745,
+      "sha256": "32a6da451ead7ffab2b7dd73061cdc18e9929b4396c774d463dae3df1546d718",
+      "strong_red_pixels": 255
+    },
+    {
+      "file": "panels/08-six-lines.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3393879,
+      "sha256": "f2bc53c90fc09d29d88f25429ccc8eae7e33a6a132c49fc11b959365759404f0",
+      "strong_red_pixels": 86
+    },
+    {
+      "file": "panels/09-counting-from-one.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3291218,
+      "sha256": "647ac86ba2bf25e2ad39eadd3da394665a73f03ee58658c064b9025c1302d450",
+      "strong_red_pixels": 431
+    },
+    {
+      "file": "panels/10-yesterday.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2887574,
+      "sha256": "c0f157cd90072e1a969bc5d0ec10e6f3597f381cb9a1efa6689d4e98b6565ae5",
+      "strong_red_pixels": 52
+    },
+    {
+      "file": "panels/11-five-and-six.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3200351,
+      "sha256": "3ed234d2904d6a5be761de4960e1445f26061fe07082873949bb6d770bfd5a3e",
+      "strong_red_pixels": 0
+    }
+  ],
+  "internal_links_checked": 62,
+  "rss_and_sitemap_parse": true,
+  "prior_files_byte_identical": 420,
+  "visual_review": "All 11 generated images inspected; final comparison has five handwritten rows and six typeset rows.",
+  "red_pixel_test": "r > 1.5*g and r > 1.4*b and r-g > 30"
+}
