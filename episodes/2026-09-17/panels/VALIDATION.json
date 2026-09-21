@@ -1,0 +1,90 @@
+{
+  "publisher_command": "python3 scripts/publish_daily.py --through 2026-09-17",
+  "prior_episode_files_unchanged": 437,
+  "panels": [
+    {
+      "file": "panels/01-the-hand-that-lands.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2989808,
+      "sha256": "c9d73a13c902103e1e2b5190ae6a7a1e565f855f921226dd180c20be2c9beff3"
+    },
+    {
+      "file": "panels/02-by-daylight.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2951654,
+      "sha256": "88a52a33020060a3d0773b8b4401b51c7cba38fafe72a4ea3f735cf1be07b109"
+    },
+    {
+      "file": "panels/03-the-curtain-drawn.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3055941,
+      "sha256": "2552cdbd751a6d237aa64736bca8dbb95d7e397b7436cc7dec0f7dc9c58cfc1c"
+    },
+    {
+      "file": "panels/04-one-window.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3722028,
+      "sha256": "9fa2fd65dc7446c8350369661d536a05d0203d19cb614e6609a459a46dcf45fd"
+    },
+    {
+      "file": "panels/05-half-a-beat.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3006893,
+      "sha256": "f4a20e14ca8ff552ff6d7bfd91a59a497c902f659d30c11c4a079e781f332d37"
+    },
+    {
+      "file": "panels/06-a-line-being-drawn.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3446083,
+      "sha256": "66a3f3582800b1184d466df28b16249febd5ebc45faaf60c8733286a1878ad65"
+    },
+    {
+      "file": "panels/07-the-darker-one.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2952162,
+      "sha256": "962879a937129eca13c679277b7ab7432810e3d9c53f06088c841d05113bfbbd"
+    },
+    {
+      "file": "panels/08-mine-yes.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2946895,
+      "sha256": "b861d014432599efd069fc4e667a2b95d0592dfe4c8ac4713d770e4d4c6dc886"
+    },
+    {
+      "file": "panels/09-address-first.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3068996,
+      "sha256": "8311076787280725cc077fe1eedff1a318b81d6f08a1831273ab27996956e40d"
+    },
+    {
+      "file": "panels/10-the-line-below.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3542824,
+      "sha256": "75fb853c9718490a14a7fe75e756bf3a27f853aae31f38a570c27106aa8ba695"
+    }
+  ],
+  "all_referenced_rasters_verified": 316,
+  "generated_page_local_links": "passed",
+  "rss_and_sitemap_xml": "passed (xmllint)",
+  "new_episode_image_elements": 10
+}
