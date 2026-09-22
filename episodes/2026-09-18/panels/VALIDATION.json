@@ -1,0 +1,113 @@
+{
+  "episode": "2026-09-18",
+  "panels": [
+    {
+      "file": "panels/01-the-closing-hand.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3452964,
+      "sha256": "42debda4b92e582b418d47e343e535b05a3f74dd22e40ef366cffbbf5b6d9e87",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/02-shadows-on-the-wall.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3282145,
+      "sha256": "794c364e9239a31df73538914aa1d0961db78a3b3ad3295407e7ad1b87c76f95",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/03-a-letter-for-below.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3164197,
+      "sha256": "787ec4d236456e2de598f1e83a8b7613874ccb8643dce70a6c2d3d5f92517dcb",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/04-a-name-sent-down.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3472474,
+      "sha256": "b50660766b66dcac5061a849ad66b32984d7d1c90c4162c61310a04af44e1d4d",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/05-inside-the-threshold.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3308283,
+      "sha256": "f392a448bcc561f74f2e444f78dce581288eff865feb73b3712ec1ce2775c949",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/06-three-letters.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3274286,
+      "sha256": "0e1ac13390974f0ddd3d0a020f15630e3c6cd622ae54736084b41df7aa21891e",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/07-same-surname.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3192288,
+      "sha256": "c8de999593971a44a7c149e71bb03bce64b2b985eb2dabf55d9c59a84f51f492",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/08-one-shadow.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2830262,
+      "sha256": "1839674dc981faf420f1900bb28f42bf204b40455a5d23a0ae35a20735b7e06e",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/09-she-does-not-know-me.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 3094613,
+      "sha256": "07c84e89a87dc4f7d76df46c242a6c1eeb5509efbb482d91f3aaa534df67ca0c",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/10-when-it-goes-missing.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2633627,
+      "sha256": "b4c75840f5c70a59e3bbecad899a7f48760bc5d51a69f31599c3e3c5a33be980",
+      "crc_and_raster_data": "pass"
+    },
+    {
+      "file": "panels/11-four-thirteen.png",
+      "format": "PNG",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 2535576,
+      "sha256": "19947dd1145fe6da23dfb0a0c9046c4f302fa3715cbbc7af7cdac5cb5d4fab6a",
+      "crc_and_raster_data": "pass"
+    }
+  ],
+  "publication_command": "python3 scripts/publish_daily.py --through 2026-09-18",
+  "publication": "pass",
+  "metadata_referenced_rasters_through_date": 327,
+  "episode_count": 29,
+  "internal_links_checked": 630,
+  "rss_and_sitemap": "pass (system Python XML parser)",
+  "prior_episode_files_unchanged": 453,
+  "metadata_extensions_changed": false,
+  "visual_review": "All 11 generated images inspected; panels 08, 10, 11 revised with built-in image_gen."
+}
