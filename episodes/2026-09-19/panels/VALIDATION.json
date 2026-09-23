@@ -1,0 +1,111 @@
+{
+  "panels": [
+    {
+      "file": "panels/01-the-withdrawn-envelope.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 2612764,
+      "sha256": "7353907f22d0c9e058f328f5be4f46cac2548e942df4ef7f4ac73230c33ef378",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/02-following-his-back.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 3046709,
+      "sha256": "67de6eedb8e83f4406bbce34eef8e0fac7a1e5953350343b60a3590b9c7ebfc0",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/03-the-name-inside.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 2736909,
+      "sha256": "5630c89c0a7e83eae0983888f2f7ce6613ac46228753e4ca0bef746a275c4a17",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/04-two-rows.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 3353851,
+      "sha256": "edbd98be4d1d1f771a5daa9744992c7cbd5284e677139092d5b5558cacaabb1f",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/05-the-width-of-a-slot.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 3053740,
+      "sha256": "892b8a802dc3a91afdf2f9790e7ce520e6cde38a8733dc04fd72171149678f95",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/06-the-part-that-fell.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 2880159,
+      "sha256": "eaaed67f8741896e990e53f6733c0ebf8c303969b5b4ba44cbce78b1987af390",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/07-ju.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 2635026,
+      "sha256": "4060b0858dba33d652b86e93ca21ee7550e9cc531fe856b2493fcf21b80336da",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/08-a-smooth-place.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 3019966,
+      "sha256": "73cf52ff6fbadab81aff6e1aaf90998f0b6a686a8d886712c91381b265230fb3",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/09-a-line-pushed-down.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 3402648,
+      "sha256": "927ac4f8ce17199e5b89c74a372e68266c2ca8789ffa0d05321e5a0e7db55998",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/10-twice-pulled-out.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 2745375,
+      "sha256": "5b1632e5b3f059daf8f1c43bd7319d9fda4356054ec1975e499841c178d0dbad",
+      "png_crc_and_decompression": "passed"
+    },
+    {
+      "file": "panels/11-the-drawer.png",
+      "width": 1024,
+      "height": 1536,
+      "format": "PNG",
+      "bytes": 2796766,
+      "sha256": "7ecee0f82ee1c84a576f2d70c63b048f742914b1859cb3bbd5133e052ff31a07",
+      "png_crc_and_decompression": "passed"
+    }
+  ],
+  "publisher_command": "python3 scripts/publish_daily.py --through 2026-09-19",
+  "published_episode_count": 30,
+  "referenced_raster_count": 338,
+  "all_referenced_rasters_exist": true,
+  "prior_episode_files_unchanged": 470,
+  "publisher_rewrites_of_prior_pages": "restored from pre-run snapshot",
+  "generated_page_local_links": "passed",
+  "rss_and_sitemap_xml": "passed with xmllint"
+}
