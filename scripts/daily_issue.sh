@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 오식 일일 발행기 — Claude Opus는 정전/각본, Codex는 래스터 패널/검증을 맡는다.
+# 오식 일일 발행기 — ChatGPT 구독 인증 Codex가 집필/정전/대사/패널을 맡는다.
 # 실행 위치는 저장소 루트여야 한다. 비밀은 /Users/jy/.secrets에만 둔다.
 # 모든 실행 출력은 .run-logs/daily/YYYY-MM-DD.log에 남긴다.
 set -Eeuo pipefail
@@ -45,55 +45,66 @@ missing = [name for name in required if not (root / name).is_file()]
 if missing:
     raise SystemExit(f'missing source artifacts: {missing}')
 data = json.loads((root / 'metadata.json').read_text(encoding='utf-8'))
+if data.get('date') != date:
+    raise SystemExit('metadata date mismatch')
+for key in ('episode', 'title', 'description', 'credits'):
+    if not data.get(key):
+        raise SystemExit(f'missing metadata field: {key}')
 panels = data.get('panels', [])
-if not 8 <= len(panels) <= 14:
-    raise SystemExit(f'invalid panel count: {len(panels)}')
+if not isinstance(panels, list) or not 8 <= len(panels) <= 14:
+    raise SystemExit('invalid panel count/type')
+seen = set()
 for index, panel in enumerate(panels, 1):
     if not all(panel.get(key) for key in ('file', 'alt', 'dialogue')):
         raise SystemExit(f'incomplete metadata panel {index}')
+    path = Path(panel['file'])
+    if (path.is_absolute() or '..' in path.parts or len(path.parts) != 2
+            or path.parts[0] != 'panels' or path.suffix.lower() not in ('.png', '.webp')
+            or str(path) in seen):
+        raise SystemExit(f'invalid/duplicate panel path: {path}')
+    seen.add(str(path))
+    if not isinstance(panel['dialogue'], list) or not all(
+            isinstance(line, str) and line.strip() for line in panel['dialogue']):
+        raise SystemExit(f'invalid dialogue panel {index}')
 print(f'[SOURCE] validated {date}: {len(panels)} panels')
 PY
 }
 
-if [[ -d "episodes/$TODAY" ]]; then
-  # A prior job may have been interrupted after Claude created only part of a
-  # source episode. Preserve every existing file and ask Claude to finish only
-  # the missing source artifacts before moving on to Codex.
-  if [[ -f "episodes/$TODAY/SCENARIO.md" && -f "episodes/$TODAY/ART_PROMPTS.md" && -f "episodes/$TODAY/metadata.json" ]]; then
-    echo "[RESUME] complete episode source detected; skipping Claude writing step."
-  else
-    STEP="claude-resume-source"
-    echo '[STEP] Claude Opus: completing interrupted episode source'
-    CLAUDE_STATUS=0
-    claude -p --model opus --effort high --max-turns 30 --max-budget-usd 6 \
-      "episodes/$TODAY/ is an interrupted, partially written next episode of the continuous webtoon 오식(誤植). Read STORY_BIBLE.md, CLAUDE.md, every existing file inside episodes/$TODAY/, and the most recent complete earlier episode. Preserve existing source files unless a correction is essential for metadata consistency. Complete the missing required source artifacts: SCENARIO.md, ART_PROMPTS.md, metadata.json, and panels/README.md. metadata.json must contain 8~12 unique Korean panels with file/alt/dialogue and must match the scenario. Update STORY_BIBLE.md only with canon actually established by this episode. Do not create image panels, commit, deploy, or modify prior episodes. Finish the files within this single run and then stop." \
-      --allowedTools "Read,Write,Edit,Bash" \
-      --output-format json >"$LOG_DIR/claude-$TODAY.json" || CLAUDE_STATUS=$?
-    if (( CLAUDE_STATUS != 0 )); then
-      echo "[WARN] Claude exited $CLAUDE_STATUS; validating generated source before deciding whether recovery can continue."
-      validate_episode_source || exit "$CLAUDE_STATUS"
-      echo '[WARN] Claude budget/turn limit reached after valid source creation; continuing with deterministic art validation.'
-    fi
-  fi
+# Pin the official provider and subscription auth for EVERY CLI invocation.
+# Ignore user provider overrides; never fall back to API-key billing.
+run_codex() {
+  local command="$1"
+  shift
+  local ignore_config=""
+  if [[ "$command" == exec ]]; then ignore_config="--ignore-user-config"; fi
+  env -u OPENAI_API_KEY -u OPENAI_BASE_URL -u CODEX_API_KEY codex "$command" \
+    ${ignore_config:+"$ignore_config"} -c 'forced_login_method="chatgpt"' \
+    -c 'model_provider="openai"' "$@"
+}
+STEP="codex-auth"
+AUTH_STATUS="$(run_codex login status 2>&1)"
+[[ "$AUTH_STATUS" == *"Logged in using ChatGPT"* ]] || {
+  echo '[FAIL] ChatGPT subscription login is required; API-key fallback is forbidden.'
+  exit 14
+}
+
+if [[ -d "episodes/$TODAY" ]] && validate_episode_source; then
+  echo '[RESUME] valid episode source detected; skipping writing.'
 else
-  STEP="claude-writing"
-  echo '[STEP] Claude Opus: writing scenario and canon update'
-  CLAUDE_STATUS=0
-  claude -p --model opus --effort high --max-turns 30 --max-budget-usd 6 \
-    "오늘은 $TODAY 입니다. 오식(誤植) 연속 웹툰의 다음 회차를 실제 파일로 발행하세요. 먼저 STORY_BIBLE.md 전체, CLAUDE.md, 그리고 episodes/ 아래 가장 최근 회차의 SCENARIO.md·ART_PROMPTS.md·metadata.json을 읽으세요. 새 episodes/$TODAY/{SCENARIO.md,ART_PROMPTS.md,metadata.json,panels/}을 만들고 8~12 패널의 연결된 한국어 회차를 작성하세요. 직전 화의 마지막 이미지에서 즉시 이어지고, 열린 실마리 하나를 진전시키며 새 단서 하나를 심고, 기억 비용·인물 상태·날짜 연속성을 지키세요. metadata의 패널마다 고유 file/alt/dialogue를 넣으세요. STORY_BIBLE.md의 현재 타임라인, 열린 실마리, 변경 기록을 업데이트하세요. 절대 기존 화를 수정하거나 이미지 파일을 만들지 마세요. 필요한 네 파일을 모두 만든 즉시 종료하세요; 불필요한 반복 검토는 하지 마세요." \
-    --allowedTools "Read,Write,Edit,Bash" \
-    --output-format json >"$LOG_DIR/claude-$TODAY.json" || CLAUDE_STATUS=$?
-  if (( CLAUDE_STATUS != 0 )); then
-    echo "[WARN] Claude exited $CLAUDE_STATUS; validating generated source before deciding whether recovery can continue."
-    validate_episode_source || exit "$CLAUDE_STATUS"
-    echo '[WARN] Claude budget/turn limit reached after valid source creation; continuing with deterministic art validation.'
-  fi
+  STEP="codex-writing"
+  echo '[STEP] Codex (ChatGPT subscription): scenario, canon and final dialogue'
+  run_codex exec --sandbox danger-full-access \
+    "오늘은 $TODAY 입니다. 오식(誤植)의 다음 회차 집필·정전 변경·최종 대사를 담당하세요. STORY_BIBLE.md 전체, CLAUDE.md와 직전 3화의 SCENARIO.md·ART_PROMPTS.md·metadata.json을 읽으세요. episodes/$TODAY/에 기존 파일이 있으면 먼저 읽고 보존하며 누락 파일을 완성하세요. SCENARIO.md, ART_PROMPTS.md, metadata.json, panels/README.md 네 파일을 완성하세요. 8~12 패널의 연결된 한국어 회차를 쓰세요. 직전 화의 마지막 이미지에서 즉시 이어지고 열린 실마리 하나를 진전시키며 새 단서 하나를 심고, 기억 비용·인물 상태·날짜 연속성을 지키세요. metadata의 date는 $TODAY, 패널마다 고유 panels/NN.png 또는 .webp 경로와 한국어 alt, 비어 있지 않은 dialogue 배열을 넣으세요. 기존 metadata 스키마를 지키고 story credit는 Codex (ChatGPT subscription)로 기록하세요. STORY_BIBLE.md의 타임라인, 열린 실마리, 변경 기록에 이번 화의 정전만 반영하세요. 기존 회차·프로젝트 코드·설정·무관한 파일을 수정하지 마세요. 이미지 생성, 커밋, 배포를 하지 마세요. API 키, 유료 API, Claude를 사용하지 말고 현재 ChatGPT 인증만 사용하세요. 필요한 네 파일을 완성하면 종료하세요." \
+    >"$LOG_DIR/codex-writing-$TODAY.log" 2>&1
 fi
+
+STEP="validate-source"
+validate_episode_source
 
 STEP="codex-raster-art"
 echo '[STEP] Codex: generating full-image raster panels'
-codex exec --sandbox danger-full-access \
-  "Read STORY_BIBLE.md, CLAUDE.md, episodes/$TODAY/SCENARIO.md, episodes/$TODAY/ART_PROMPTS.md and episodes/$TODAY/metadata.json. Generate every metadata-referenced panel as an ACTUAL full-image 1024x1536 PNG or WebP in episodes/$TODAY/panels/. Do not create SVG, placeholders, HTML drawings, or text-only illustrations. Each panel must be a finished, cohesive Korean vertical webtoon image with character continuity and room for dialogue overlay; preserve the ink/paper/letterpress visual grammar, use red only for correction danger, and do not imitate a living artist. Update metadata file extensions if necessary. Then run python3 scripts/publish_daily.py --through $TODAY and validate every referenced raster panel exists. Do not commit, deploy, or change prior episodes."
+run_codex exec --sandbox danger-full-access \
+  "Use only the existing ChatGPT subscription, never API keys or paid APIs. Do not invoke Claude. Do not modify project code, settings, or unrelated files. Read STORY_BIBLE.md, CLAUDE.md, episodes/$TODAY/SCENARIO.md, episodes/$TODAY/ART_PROMPTS.md and episodes/$TODAY/metadata.json. Generate every metadata-referenced panel as an ACTUAL full-image 1024x1536 PNG or WebP in episodes/$TODAY/panels/. Do not create SVG, placeholders, HTML drawings, or text-only illustrations. Each panel must be a finished, cohesive Korean vertical webtoon image with character continuity and room for dialogue overlay; preserve the ink/paper/letterpress visual grammar, use red only for correction danger, and do not imitate a living artist. Update metadata file extensions if necessary. Then run python3 scripts/publish_daily.py --through $TODAY and validate every referenced raster panel exists. Do not commit, deploy, or change prior episodes."
 
 STEP="validate-publish"
 echo '[STEP] publishing static outputs and validating Python'

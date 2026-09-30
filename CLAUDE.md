@@ -1,6 +1,6 @@
 # Daily continuity workflow
 
-이 저장소의 일일 에피소드 집필 담당은 **Claude Opus**로 고정한다. 다른 모델이 초안을 보조할 수 있으나 정전 변경과 최종 대사 승인은 Claude Opus가 수행한다.
+이 저장소의 일일 에피소드 집필·정전 변경·최종 대사 승인·이미지 생성 담당은 **OpenAI Codex CLI**다. 현재 구독 중인 ChatGPT 계정 로그인 인증을 사용하며 별도 API 키 과금으로 전환하지 않는다. Claude 구독은 종료되었으므로 Claude 호출이나 승인을 요구하지 않는다.
 
 ## 매일 순서
 
