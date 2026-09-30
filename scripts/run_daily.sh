@@ -58,6 +58,7 @@ else
   exit "$code"
 fi
 
-git fetch origin >/dev/null 2>&1 || true
-printf '[RUNNER] commit='; git log -1 --format='%h %s'
+# The publisher already verifies push/deployment; an optional origin fetch can
+# hang on unattended SSH authentication and must not block successful completion.
+printf '[RUNNER] commit='; git log -1 --format='%H %s'
 printf '[RUNNER] episode=https://openstory-ai-webtoon.vercel.app/episodes/%s\n' "$TARGET"
