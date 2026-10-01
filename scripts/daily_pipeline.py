@@ -227,7 +227,7 @@ class Pipeline:
             raise Failure('command failed at ' + self.step, proc.returncode if proc.returncode > 0 else 128-proc.returncode)
         if err and not private:
             self.say('[CLI] completed with diagnostic output (omitted)')
-        return out
+        return out + err if self.step == 'codex-auth' else out
 
     def raster(self, path):
         if not path.is_file() or path.is_symlink():

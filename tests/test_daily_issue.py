@@ -97,6 +97,15 @@ print('200\\n' + mime, end='')
                          + chunk(b'IDAT', zlib.compress(b'\0\xff\0\0'))
                          + chunk(b'IEND', b''))
 
+    def test_chatgpt_auth_status_on_stderr_is_accepted(self):
+        self.source()
+        self.stub('codex', '''if [[ "$*" == *"status"* ]]; then
+  echo 'Logged in using ChatGPT' >&2; exit 0
+fi
+exit 43''')
+        result = self.run_daily()
+        self.assertEqual(result.returncode, 43, result.stdout)
+
     def test_complete_rasters_skip_all_codex_including_auth(self):
         folder, data = self.source()
         for panel in data['panels']:
