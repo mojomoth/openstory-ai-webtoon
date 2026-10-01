@@ -126,6 +126,19 @@ exit 43''')
         return subprocess.run(['/bin/bash', str(self.root / 'scripts/run_daily.sh')],
                               env=self.env, capture_output=True, text=True, timeout=15)
 
+    def test_selection_skips_committed_legacy_episode_without_source_readme(self):
+        folder, data = self.complete()
+        prior = folder.with_name('2026-09-29')
+        shutil.copytree(folder, prior)
+        data['date'] = prior.name
+        (prior / 'metadata.json').write_text(json.dumps(data))
+        (prior / 'panels/README.md').unlink()
+        self.real_git('add', 'episodes/2026-09-29')
+        self.real_git('commit', '-m', 'legacy published episode')
+        result = self.runner()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn('target=2026-09-30', result.stdout)
+
     def test_committed_retry_pushes_and_deploys_and_preserves_index(self):
         folder, _ = self.complete()
         (folder / 'unrelated.txt').write_text('not publication')

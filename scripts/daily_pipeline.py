@@ -275,7 +275,7 @@ class Pipeline:
             if not folder.is_dir() or date > today:
                 continue
             try:
-                data = validate_source(ROOT, folder.name)
+                data = validate_source(ROOT, folder.name, allow_missing=True)
             except (Failure, ValueError, OSError):
                 return folder.name
             tracked = self.run(['git', 'ls-files', '--', str(folder / 'metadata.json')])
