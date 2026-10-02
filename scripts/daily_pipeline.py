@@ -2,6 +2,7 @@
 """Bounded, resumable publication; dependencies are Python's standard library."""
 from __future__ import annotations
 
+import argparse
 import datetime as dt
 from contextlib import contextmanager
 import hashlib
@@ -196,6 +197,14 @@ class Pipeline:
         self.secrets = []
         self.pending = ROOT / '.run-logs/daily/pending-target'
 
+    def producer_status(self, state, reason='', date=None):
+        record = {'state': state, 'step': self.step, 'reason': reason,
+                  'target': date or (self.pending.read_text().strip() if self.pending.exists() else None),
+                  'updated_at': dt.datetime.now(dt.timezone.utc).isoformat()}
+        temp = self.pending.parent / 'producer-status.tmp'
+        temp.write_text(json.dumps(record) + '\n')
+        temp.replace(self.pending.parent / 'producer-status.json')
+
     def say(self, message):
         for secret in self.secrets:
             if secret:
@@ -223,6 +232,12 @@ class Pipeline:
                 pass
             proc.wait()
         if proc.returncode not in allowed:
+            if self.step.startswith('codex-'):
+                diagnostic = (out + err).decode(errors='replace').lower()
+                if any(word in diagnostic for word in ('http 401', 'http 403', 'unauthorized', 'forbidden', 'authentication failed')):
+                    raise Failure('Codex authorization failed; renew ChatGPT subscription login', 14)
+                if any(word in diagnostic for word in ('429', 'rate limit', 'stream disconnected', 'connection reset', 'timed out')):
+                    raise Failure('transient Codex service failure; retry on next producer run', 75)
             # Never echo command arguments/output: auth/CLIs can contain tokens.
             raise Failure('command failed at ' + self.step, proc.returncode if proc.returncode > 0 else 128-proc.returncode)
         if err and not private:
@@ -284,6 +299,39 @@ class Pipeline:
             entries.append(date)
         return min(max(entries, default=today-dt.timedelta(days=1))+dt.timedelta(days=1), today).isoformat()
 
+    def production_target(self, explicit):
+        if self.pending.exists():
+            return self.target(explicit)
+        today = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date()
+        horizon = today + dt.timedelta(days=2)
+        dates = []
+        for folder in sorted((ROOT / 'episodes').glob('*')):
+            try:
+                day = dt.date.fromisoformat(folder.name)
+            except ValueError:
+                continue
+            if not folder.is_dir():
+                continue
+            dates.append(day)
+            ready = self.ready_path(folder.name)
+            if ready.exists():
+                self.check_ready(folder.name)
+                continue
+            tracked = self.run(['git', 'ls-tree', '--name-only', 'HEAD', '--',
+                                str(folder / 'metadata.json'), str(folder / 'index.html')],
+                               allowed=(0, 128)).splitlines()
+            if len(tracked) == 2:
+                data = validate_source(ROOT, folder.name, allow_missing=True)
+                if all(self.raster(folder / p['file']) for p in data['panels']):
+                    continue
+            if explicit and explicit != folder.name:
+                raise Failure('oldest pending episode must finish first', 75)
+            return folder.name
+        if explicit:
+            return explicit
+        next_day = max(dates, default=today-dt.timedelta(days=1)) + dt.timedelta(days=1)
+        return next_day.isoformat() if next_day <= horizon else ''
+
     def art_workspace(self, date, panel):
         return self.pending.parent / 'art' / date / Path(panel['file']).name
 
@@ -323,15 +371,30 @@ class Pipeline:
         if b'Logged in using ChatGPT' not in self.codex('login', 'status'):
             raise Failure('ChatGPT subscription login is required; API-key fallback is forbidden.', 14)
 
-    def execute(self, explicit):
+    def execute(self, explicit, mode="recover"):
+        self.mode = mode
+        if mode == "publish":
+            return self.publish_ready(explicit)
         os.chdir(ROOT)
         self.run(['git', 'rev-parse', '--is-inside-work-tree'])
         for name in ('scripts/publish_daily.py', 'STORY_BIBLE.md', 'CLAUDE.md'):
             if not (ROOT / name).is_file():
                 raise Failure('required project files are missing')
-        date = self.target(explicit)
+        if mode == 'recover':
+            ready = explicit or next((p.stem for p in sorted(
+                (self.pending.parent / 'ready').glob('*.json'))
+                if not p.with_suffix('.published').exists()), '')
+            if ready and self.ready_path(ready).exists():
+                self.say('[RUNNER] target=' + ready)
+                return self.publish_ready(ready)
+        date = self.production_target(explicit) if mode == 'produce' else self.target(explicit)
+        if not date:
+            self.producer_status('buffered')
+            self.say('[BUFFERED] production horizon is ready')
+            return
         if dt.date.fromisoformat(date).isoformat() != date:
             raise Failure('invalid target date')
+        self.check_canon_provenance(date)
         self.pending.parent.mkdir(parents=True, exist_ok=True)
         self.log = (self.pending.parent / (date + '.log')).open('a')
         temp = self.pending.with_suffix('.tmp')
@@ -437,18 +500,171 @@ class Pipeline:
         data = validate_source(ROOT, date)
         if any(not self.raster(folder / p['file']) for p in data['panels']):
             raise Failure('incomplete raster episode')
+        self.mark_ready(date)
+        if mode == 'produce':
+            self.producer_status('ready', date=date)
+            self.pending.unlink(missing_ok=True)
+            self.say('[READY] ' + date)
+            return
+        return self.publish_ready(date)
+
+    def ready_path(self, date):
+        if dt.date.fromisoformat(date).isoformat() != date:
+            raise Failure('invalid target date')
+        return self.pending.parent / 'ready' / (date + '.json')
+
+    def ready_files(self, date, data):
+        prefix = 'episodes/' + date + '/'
+        return [prefix + name for name in ('SCENARIO.md', 'ART_PROMPTS.md',
+                'metadata.json', 'panels/README.md')] + [prefix + p['file'] for p in data['panels']]
+
+    def mark_ready(self, date):
+        path = self.ready_path(date)
+        # Never silently bless changes to an already sealed episode.
+        if path.exists():
+            self.check_ready(date)
+            return
+        self.check_canon_provenance(date)
+        data = validate_source(ROOT, date)
+        if any(not self.raster(ROOT / 'episodes' / date / p['file']) for p in data['panels']):
+            raise Failure('incomplete raster episode')
+        path.parent.mkdir(parents=True, exist_ok=True)
+        canon = path.with_suffix('.bible.md')
+        shutil.copyfile(ROOT / 'STORY_BIBLE.md', canon)
+        hashes = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                  for name in self.ready_files(date, data)}
+        record = {'date': date, 'hashes': hashes,
+                  'bible_sha256': hashlib.sha256(canon.read_bytes()).hexdigest()}
+        temp = path.with_suffix('.tmp')
+        temp.write_text(json.dumps(record, indent=2) + '\n')
+        temp.replace(path)
+
+    def check_canon_provenance(self, date):
+        if self.ready_path(date).exists():
+            self.check_ready(date)
+            return
+        for folder in (ROOT / 'episodes').glob('*'):
+            if folder.name > date and any((folder / name).exists() for name in
+                    ('SCENARIO.md', 'ART_PROMPTS.md', 'metadata.json', 'panels/README.md')):
+                raise Failure('unknown canon provenance for ' + date + ': later source exists', 75)
+
+    def check_ready(self, date):
+        path = self.ready_path(date)
+        if not path.is_file():
+            raise Failure('episode is not ready: ' + date, 75)
+        record = json.loads(path.read_text())
+        data = validate_source(ROOT, date)
+        hashes = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                  for name in self.ready_files(date, data)}
+        if (record.get('date') != date or record.get('hashes') != hashes
+                or record.get('bible_sha256') != hashlib.sha256(path.with_suffix('.bible.md').read_bytes()).hexdigest()
+                or any(not self.raster(ROOT / 'episodes' / date / p['file']) for p in data['panels'])):
+            raise Failure('ready manifest mismatch: ' + date)
+        return data
+
+    def publish_ready(self, explicit):
+        candidates = sorted((self.pending.parent / 'ready').glob('*.json'))
+        date = explicit or next((p.stem for p in candidates if not p.with_suffix('.published').exists()), '')
+        if not date:
+            self.say('[WAIT] no ready episode')
+            return
+        today = dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date().isoformat()
+        if date > today:
+            raise Failure('future episode cannot be published early', 75)
+        committed = set(self.run(['git', 'ls-tree', '-r', '--name-only', 'HEAD', '--', 'episodes'],
+                                 allowed=(0, 128)).decode().splitlines())
+        for name in committed:
+            path = Path(name)
+            if (len(path.parts) == 3 and path.name == 'index.html'
+                    and path.parent.name > date and str(path.with_name('metadata.json')) in committed):
+                raise Failure('newer publication exists: ' + path.parent.name, 75)
+        for receipt in (self.pending.parent / 'ready').glob('*.published'):
+            if receipt.stem > date and receipt.read_text() == 'HTTP verified\n':
+                self.check_ready(receipt.stem)
+                raise Failure('newer publication exists: ' + receipt.stem, 75)
+        for folder in sorted((ROOT / 'episodes').glob('*')):
+            if folder.name >= date or not any((folder / n).exists() for n in ('metadata.json', 'SCENARIO.md')):
+                continue
+            ready = self.ready_path(folder.name)
+            if ready.exists() and not ready.with_suffix('.published').exists():
+                raise Failure('older ready episode must publish first: ' + folder.name, 75)
+            historical = folder / ('index.html' if self.mode == 'publish' else 'metadata.json')
+            if not self.run(['git', 'ls-tree', '--name-only', 'HEAD', '--', str(historical)], allowed=(0, 128)).strip():
+                raise Failure('older episode is not published: ' + folder.name, 75)
+        data = self.check_ready(date)
+        with tempfile.TemporaryDirectory(prefix='webtoon-public-') as tmp:
+            self.stage = Path(tmp)
+            self.prepare_stage(date, data)
+            self.publish(date, data)
+        self.ready_path(date).with_suffix('.published').write_text('HTTP verified\n')
+
+    def prepare_stage(self, date, data):
+        stage = self.stage
+        head = self.run(['git', 'rev-parse', '--verify', 'HEAD'], allowed=(0, 128))
+        if head:
+            archive = stage / 'tracked.tar'
+            self.run(['git', 'archive', '--format=tar', '--output=' + str(archive), 'HEAD'])
+            self.run(['tar', '-xf', str(archive)], cwd=stage)
+            archive.unlink()
+        # Only committed history through this date and static assets are public.
+        for entry in list(stage.iterdir()):
+            if entry.name not in ('episodes', 'assets', 'vercel.json'):
+                if entry.is_dir() and not entry.is_symlink():
+                    shutil.rmtree(entry)
+                else:
+                    entry.unlink()
+        for folder in (stage / 'episodes').glob('*'):
+            if folder.name >= date or not (folder / 'metadata.json').is_file():
+                if folder.is_dir() and not folder.is_symlink():
+                    shutil.rmtree(folder)
+                else:
+                    folder.unlink()
+                continue
+            # Legacy publication requires a committed reader and metadata. The
+            # combined recovery entry point also supports pre-reader history.
+            if self.mode == 'publish' and not (folder / 'index.html').is_file():
+                raise Failure('older episode is not published: ' + folder.name, 75)
+            historical = validate_source(stage, folder.name, allow_missing=True)
+            if any(not self.raster(folder / p['file']) for p in historical['panels']):
+                raise Failure('invalid historical raster episode: ' + folder.name)
+            allowed = {stage / name for name in self.ready_files(folder.name, historical)}
+            allowed.update((folder / 'index.html', folder / 'panels'))
+            for entry in sorted(folder.rglob('*'), reverse=True):
+                if entry not in allowed:
+                    if entry.is_dir() and not entry.is_symlink():
+                        entry.rmdir()
+                    else:
+                        entry.unlink()
+        for name in self.ready_files(date, data):
+            destination = stage / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / name, destination)
+        shutil.copyfile(self.ready_path(date).with_suffix('.bible.md'), stage / 'STORY_BIBLE.md')
+        scripts = stage / 'scripts'
+        scripts.mkdir()
+        shutil.copyfile(ROOT / 'scripts/publish_daily.py', scripts / 'publish_daily.py')
+        self.run([sys.executable, 'scripts/publish_daily.py', '--through', date], cwd=stage)
+        shutil.rmtree(scripts)
+        for name in ('index.html', 'archive.html', 'rss.xml', 'sitemap.xml'):
+            shutil.copyfile(stage / name, ROOT / name)
+        for page in (stage / 'episodes').glob('*/index.html'):
+            shutil.copyfile(page, ROOT / page.relative_to(stage))
+
+    def publish(self, date, data):
+        required = ('SCENARIO.md', 'ART_PROMPTS.md', 'metadata.json', 'panels/README.md')
         self.step = 'validate-publish'
         self.say('[STEP] publishing static outputs')
-        self.run([sys.executable, 'scripts/publish_daily.py', '--through', date])
+        # Rendering and deployment use the isolated, allowlisted staging tree.
         publication = ['STORY_BIBLE.md', 'index.html', 'archive.html', 'rss.xml', 'sitemap.xml']
-        publication += [str(p.with_name('index.html').relative_to(ROOT))
-                        for p in sorted((ROOT / 'episodes').glob('*/metadata.json'))
+        publication += [str(p.with_name('index.html').relative_to(self.stage))
+                        for p in sorted((self.stage / 'episodes').glob('*/metadata.json'))
                         if p.parent.name <= date]
         publication += [f'episodes/{date}/{name}' for name in required]
         publication += [f'episodes/{date}/{p["file"]}' for p in data['panels']]
         self.step = 'git-commit'
         with tempfile.TemporaryDirectory() as tmp:
-            env = dict(os.environ, GIT_INDEX_FILE=str(Path(tmp) / 'index'))
+            env = dict(os.environ, GIT_INDEX_FILE=str(Path(tmp) / 'index'),
+                       GIT_WORK_TREE=str(self.stage))
             head = self.run(['git', 'rev-parse', '--verify', 'HEAD'], allowed=(0, 128))
             self.run(['git', 'read-tree', 'HEAD'] if head else ['git', 'read-tree', '--empty'], env=env)
             self.run(['git', 'add', '--'] + publication, env=env)
@@ -470,7 +686,7 @@ class Pipeline:
         self.step = 'github-push'
         self.run(['git', 'push', f'https://x-access-token:{github}@github.com/mojomoth/openstory-ai-webtoon.git', 'main'], private=True)
         self.step = 'vercel-deploy'
-        self.run(['npx', '--yes', 'vercel', '--prod', '--yes', '--name', 'openstory-ai-webtoon', '--token', vercel], private=True)
+        self.run(['npx', '--yes', 'vercel', '--prod', '--yes', '--project', 'openstory-ai-webtoon', '--token', vercel], private=True, cwd=self.stage)
         self.step = 'verify-production'
         checks = [('index.html', '', {'text/html'}),
                   (f'episodes/{date}/index.html', f'episodes/{date}', {'text/html'}),
@@ -488,30 +704,39 @@ class Pipeline:
                 status, _, content_type = info.decode().partition('\n')
                 if (status != '200' or content_type.split(';')[0].strip().lower() not in mime
                         or not body.is_file() or hashlib.sha256(body.read_bytes()).digest() !=
-                        hashlib.sha256((ROOT / local).read_bytes()).digest()):
+                        hashlib.sha256((self.stage / local).read_bytes()).digest()):
                     raise Failure('HTTP MIME/hash verification failed for ' + local, 13)
                 self.say('[HTTP] verified ' + local)
-        self.pending.unlink()
+        if self.pending.exists() and self.pending.read_text().strip() == date:
+            self.pending.unlink()
         self.say('[SUCCESS] published: ' + SITE + '/episodes/' + date)
 
 
-def worker(explicit):
+def worker(explicit, mode="recover"):
     pipeline = Pipeline()
     def interrupted(signum, frame):
         raise Failure('total deadline or interruption', 124)
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)
     lock = None
+    acquired = False
     try:
         pipeline.pending.parent.mkdir(parents=True, exist_ok=True)
         lock = (pipeline.pending.parent / 'pipeline.lock').open('a')
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            acquired = True
         except BlockingIOError:
             raise Failure('another daily pipeline is running', 75)
-        pipeline.execute(explicit)
+        pipeline.execute(explicit, mode)
         return 0
     except Failure as exc:
+        if acquired and mode == 'produce' and exc.code in (124, 75):
+            pipeline.producer_status('pending', str(exc))
+            pipeline.say('[YIELD] pending; next producer run resumes: ' + str(exc))
+            return 75
+        if acquired and mode == 'produce':
+            pipeline.producer_status('failed', str(exc))
         pipeline.say('[FAIL] step=' + pipeline.step + ' ' + str(exc))
         return exc.code
     except Exception:
@@ -527,7 +752,11 @@ def worker(explicit):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == '--worker':
-        return worker(sys.argv[2] if len(sys.argv) > 2 else '')
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--mode', choices=('recover', 'produce', 'publish'), default='recover')
+        parser.add_argument('date', nargs='?', default='')
+        args = parser.parse_args(sys.argv[2:])
+        return worker(args.date, args.mode)
     total = limit('WEBTOON_TOTAL_TIMEOUT', 3240, 3240)
     proc = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), '--worker'] + sys.argv[1:],
                             start_new_session=True)
@@ -546,8 +775,9 @@ def main():
         return proc.wait(timeout=total)
     except subprocess.TimeoutExpired:
         stop()
-        print('[FAIL] total deadline exceeded', flush=True)
-        return 124
+        producing = '--mode' in sys.argv and sys.argv[sys.argv.index('--mode') + 1:][:1] == ['produce']
+        print('[YIELD] total deadline; production remains pending' if producing else '[FAIL] total deadline exceeded', flush=True)
+        return 75 if producing else 124
 
 
 if __name__ == '__main__':
