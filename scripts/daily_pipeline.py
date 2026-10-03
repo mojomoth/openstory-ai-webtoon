@@ -238,6 +238,20 @@ class Pipeline:
                     raise Failure('Codex authorization failed; renew ChatGPT subscription login', 14)
                 if any(word in diagnostic for word in ('429', 'rate limit', 'stream disconnected', 'connection reset', 'timed out')):
                     raise Failure('transient Codex service failure; retry on next producer run', 75)
+            if self.step == 'github-push':
+                diagnostic = (out + err).decode(errors='replace').lower()
+                # Allowlisted labels only: arbitrary CLI text/URLs may contain credentials.
+                http = re.search(r'http(?:/\d(?:\.\d)?)?\s+([45]\d{2})\b', diagnostic)
+                reason = ('HTTP ' + http.group(1)) if http else next(
+                    (label for needle, label in (
+                        ('authentication failed', 'authentication rejected'),
+                        ('non-fast-forward', 'non-fast-forward rejection'),
+                        ('rpc failed', 'RPC transport failure'),
+                        ('could not resolve host', 'DNS resolution failure'),
+                        ('connection reset', 'connection reset')) if needle in diagnostic),
+                    'unclassified Git failure')
+                raise Failure('Git push failed: ' + reason,
+                              proc.returncode if proc.returncode > 0 else 128-proc.returncode)
             # Never echo command arguments/output: auth/CLIs can contain tokens.
             raise Failure('command failed at ' + self.step, proc.returncode if proc.returncode > 0 else 128-proc.returncode)
         if err and not private:
